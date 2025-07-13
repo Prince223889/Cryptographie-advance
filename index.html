@@ -1,0 +1,151 @@
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8" />
+    <title>CryptoApp Avancé - Emoji + Symboles</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #222;
+            color: #eee;
+            max-width: 700px;
+            margin: auto;
+            padding: 20px;
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #4caf50;
+        }
+        textarea, input[type=text] {
+            width: 100%;
+            font-size: 18px;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 6px;
+            border: none;
+            box-sizing: border-box;
+        }
+        button {
+            width: 48%;
+            font-size: 18px;
+            padding: 10px;
+            margin: 5px 1%;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            background: #4caf50;
+            color: #fff;
+            transition: background 0.3s ease;
+        }
+        button:hover {
+            background: #45a049;
+        }
+        #result {
+            background: #111;
+            padding: 15px;
+            min-height: 60px;
+            font-size: 24px;
+            word-wrap: break-word;
+            border-radius: 6px;
+            margin-top: 20px;
+            user-select: all;
+        }
+        label {
+            font-weight: bold;
+            font-size: 20px;
+        }
+        footer {
+            margin-top: 30px;
+            text-align: center;
+            font-size: 14px;
+            color: #777;
+        }
+    </style>
+</head>
+<body>
+    <h1>CryptoApp Avancé - Emoji + Symboles</h1>
+    <label for="text">Texte :</label>
+    <textarea id="text" rows="4" placeholder="Entrez votre texte ici..."></textarea>
+
+    <label for="key">Clé secrète :</label>
+    <input type="text" id="key" placeholder="Entrez la clé..." />
+
+    <button onclick="encrypt()">🔒 Chiffrer</button>
+    <button onclick="decrypt()">🔓 Déchiffrer</button>
+
+    <h3>Résultat :</h3>
+    <div id="result"></div>
+
+    <footer>Clé Vigenère adaptée à un alphabet spécial avec ~100 symboles</footer>
+
+<script>
+const alphabet = "😀😃😄😁😆😅😂🤣😊😇🙂🙃😉😌😍🥰😘😗😙😚😋😛😝😜🤪🤨🧐🤓😎🤩🥳😏😒😞😔😟😕🙁☹️😣😖😫😩🥺😢😭😤😠😡🤬🤯😳🥵🥶😱😨😰😥😓🤗🤔🤭🤫🤥😶😐😑😬🙄😯😦😧😮😲🥱😴🤤😪😵🤐🥴🤢🤮🤧😷🤒🤕🤑🤠😈👿👹👺💀☠️👻👽👾🤖∑∆√π∞∫≈≠≤≥±×÷∂∇∈∉∋⊂⊃⊆⊇∪∩∧∨¬→←↔↕♠♥♦♣☀☁☂☃☄★☆☇☈☉☊☋☌☍☎☏";
+
+function mod(n, m) {
+    return ((n % m) + m) % m;
+}
+
+function vigenere_advanced(text, key, decrypt=false) {
+    // Nettoyer texte & clé : garder uniquement caractères dans l'alphabet
+    text = [...text].filter(c => alphabet.includes(c)).join('');
+    key = [...key].filter(c => alphabet.includes(c)).join('');
+    if(key.length === 0) {
+        alert("La clé doit contenir au moins un symbole valide !");
+        return "";
+    }
+    let result = "";
+    for(let i=0, j=0; i<text.length; i++, j++) {
+        if(j >= key.length) j = 0;
+        const tIndex = alphabet.indexOf(text[i]);
+        const kIndex = alphabet.indexOf(key[j]);
+        let resIndex = decrypt ? mod(tIndex - kIndex, alphabet.length) : mod(tIndex + kIndex, alphabet.length);
+        result += alphabet[resIndex];
+    }
+    return result;
+}
+
+function encrypt() {
+    let text = document.getElementById("text").value;
+    let key = document.getElementById("key").value;
+    if(text === "" || key === "") {
+        alert("Veuillez entrer un texte et une clé !");
+        return;
+    }
+    // Pour cet alphabet spécial, on convertit texte en symboles avant chiffrement
+    let preparedText = "";
+    // Convertir le texte en majuscule et remplacer chaque lettre par un symbole de l'alphabet
+    // Ici on fait un simple mapping A-Z -> alphabet[0..25]
+    text = text.toUpperCase();
+    for(let c of text) {
+        let code = c.charCodeAt(0);
+        if(code >= 65 && code <= 90) {
+            preparedText += alphabet[code - 65];
+        }
+    }
+    let encrypted = vigenere_advanced(preparedText, key, false);
+    document.getElementById("result").textContent = encrypted;
+}
+
+function decrypt() {
+    let text = document.getElementById("text").value;
+    let key = document.getElementById("key").value;
+    if(text === "" || key === "") {
+        alert("Veuillez entrer un texte et une clé !");
+        return;
+    }
+    let decrypted = vigenere_advanced(text, key, true);
+    // Convertir résultat en lettres A-Z en inversant mapping
+    let resultText = "";
+    for(let c of decrypted) {
+        let idx = alphabet.indexOf(c);
+        if(idx !== -1 && idx < 26) {
+            resultText += String.fromCharCode(idx + 65);
+        }
+    }
+    document.getElementById("result").textContent = resultText;
+}
+</script>
+</body>
+</html>
